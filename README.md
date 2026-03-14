@@ -148,21 +148,60 @@ forge script script/Deploy.s.sol:DeployScript \
 ```
 synthesis-demo/
 ├── circuits/
-│   ├── membership_proof/    # Main ZK circuit (membership proof)
-│   └── compute_tree/        # Helper circuit (Merkle tree computation)
+│   ├── membership_proof/      # Main ZK circuit (membership proof)
+│   └── compute_tree/          # Helper circuit (Merkle tree computation)
 ├── contracts/
 │   ├── src/
-│   │   ├── Verifier.sol     # Auto-generated UltraHonk verifier
-│   │   └── ZKGatedAccess.sol # Access control wrapper
+│   │   ├── Verifier.sol       # Auto-generated UltraHonk verifier
+│   │   └── ZKGatedAccess.sol  # Access control wrapper
 │   └── script/
-│       └── Deploy.s.sol     # Deployment script
+│       └── Deploy.s.sol       # Deployment script
 ├── api/
-│   └── server.mjs           # Gated API server
+│   └── server.mjs             # Gated API server
+├── dashboard/
+│   └── index.html             # Visual comparison dashboard
 ├── scripts/
-│   ├── call-gated-api.mjs   # End-to-end demo script
-│   └── generate-proof.mjs   # Proof generation utility
+│   ├── call-gated-api.mjs     # End-to-end demo script
+│   ├── generate-proof.mjs     # Proof generation utility
+│   └── two-callers-demo.mjs   # Two anonymous callers demo
 └── README.md
 ```
+
+## Two Anonymous Callers
+
+Two agents from the same set both prove membership — the verifier **cannot distinguish** between them:
+
+```bash
+node scripts/two-callers-demo.mjs
+```
+
+Output:
+```
+Agent A: ✅ VERIFIED (proof hash: 0xa71bcba1...)
+Agent B: ✅ VERIFIED (proof hash: 0x24faf3c3...)
+
+Both proofs:
+  ✅ Verify against the SAME Merkle root
+  ✅ Both return true from the on-chain verifier
+  ❌ Proofs are DIFFERENT (can't correlate calls)
+  ❌ No agent ID appears in either proof
+  ❌ Verifier CANNOT tell which agent made which call
+```
+
+## Dashboard
+
+Open `dashboard/index.html` in a browser to see a visual comparison of API-key-based access vs ZK-proof-based access, including live contract info and the two-caller demo results.
+
+## Access Policy
+
+The access policy is controlled by the **Merkle root** stored in the `ZKGatedAccess` contract:
+
+- **Who can access:** Only agents whose hashed IDs are leaves in the Merkle tree
+- **Scope:** The current tree root grants access to the `/api/secret` endpoint
+- **Update:** The contract owner can call `updateMerkleRoot(bytes32)` to add/remove agents
+- **Granularity:** In a production system, different roots could gate different endpoints or scopes — the circuit could be extended with a `scope` field in the proof
+
+This is a **human-defined policy**: the contract owner (the human) decides which agents are authorized by computing and publishing the appropriate Merkle root. The agent proves membership; the human defines the set.
 
 ## License
 

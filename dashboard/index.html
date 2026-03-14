@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZK-Gated API Dashboard — The Synthesis</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #222;
+    }
+    .header h1 { color: #7c3aed; font-size: 1.8rem; }
+    .header .subtitle { color: #888; margin-top: 0.5rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #111118;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .card h2 {
+      color: #7c3aed;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .comparison {
+      grid-column: 1 / -1;
+    }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .old-way, .new-way {
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+    .old-way {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .new-way {
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .old-way h3 { color: #ef4444; }
+    .new-way h3 { color: #22c55e; }
+    .request-log {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      margin-top: 1rem;
+    }
+    .request-log .line {
+      padding: 0.3rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.3rem;
+    }
+    .line.leaked { background: rgba(239, 68, 68, 0.1); }
+    .line.safe { background: rgba(34, 197, 94, 0.1); }
+    .highlight-bad { color: #ef4444; font-weight: bold; }
+    .highlight-good { color: #22c55e; font-weight: bold; }
+    .highlight-neutral { color: #7c3aed; }
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #1a1a24;
+    }
+    .stat:last-child { border-bottom: none; }
+    .stat .label { color: #888; }
+    .stat .value { color: #e0e0e0; font-weight: bold; }
+    .stat .value.good { color: #22c55e; }
+    .stat .value.bad { color: #ef4444; }
+    .contract-link {
+      color: #7c3aed;
+      text-decoration: none;
+    }
+    .contract-link:hover { text-decoration: underline; }
+    .flow-diagram {
+      grid-column: 1 / -1;
+    }
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      background: #1a1a24;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      min-width: 140px;
+    }
+    .flow-step .icon { font-size: 1.5rem; }
+    .flow-step .text { font-size: 0.8rem; color: #aaa; margin-top: 0.3rem; }
+    .flow-arrow { color: #7c3aed; font-size: 1.5rem; }
+    .privacy-meter {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.3rem;
+    }
+    .meter-bar {
+      height: 8px;
+      flex: 1;
+      border-radius: 4px;
+    }
+    .meter-bar.filled { background: #22c55e; }
+    .meter-bar.empty { background: #1a1a24; }
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #222;
+      color: #555;
+      font-size: 0.85rem;
+    }
+    .footer a { color: #7c3aed; text-decoration: none; }
+    @media (max-width: 768px) {
+      .grid, .comparison-grid { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔒 ZK-Gated API Dashboard</h1>
+    <div class="subtitle">The Synthesis Hackathon — Agents that Keep Secrets</div>
+  </div>
+
+  <div class="grid">
+    <!-- Comparison Card -->
+    <div class="card comparison">
+      <h2>📊 API Key vs ZK Proof — What the Server Sees</h2>
+      <div class="comparison-grid">
+        <div class="old-way">
+          <h3>❌ Traditional: API Key</h3>
+          <div class="request-log">
+            <div class="line leaked">POST /api/data</div>
+            <div class="line leaked">Authorization: Bearer <span class="highlight-bad">sk-agent-boba-4f2c</span></div>
+            <div class="line leaked">X-Agent-ID: <span class="highlight-bad">bffec5c4c9c549b2</span></div>
+            <div class="line leaked">→ Server knows: <span class="highlight-bad">Boba called, from IP 1.2.3.4</span></div>
+            <div class="line leaked">→ Can track: <span class="highlight-bad">all Boba's requests over time</span></div>
+            <div class="line leaked">→ Can correlate: <span class="highlight-bad">Boba also called service X</span></div>
+          </div>
+          <div class="privacy-meter">
+            <div class="meter-bar empty"></div>
+            <div class="meter-bar empty"></div>
+            <div class="meter-bar empty"></div>
+            <div class="meter-bar empty"></div>
+            <div class="meter-bar empty"></div>
+          </div>
+          <div style="color: #ef4444; font-size: 0.8rem; margin-top: 0.5rem;">Privacy: 0%</div>
+        </div>
+        <div class="new-way">
+          <h3>✅ ZK Proof: No Identity</h3>
+          <div class="request-log">
+            <div class="line safe">POST /api/secret</div>
+            <div class="line safe">Body: { proof: <span class="highlight-good">0xa71b...8640 bytes</span> }</div>
+            <div class="line safe">→ Server knows: <span class="highlight-good">someone in the allowed set</span></div>
+            <div class="line safe">→ Cannot track: <span class="highlight-good">different proof each time</span></div>
+            <div class="line safe">→ Cannot correlate: <span class="highlight-good">no persistent identifier</span></div>
+            <div class="line safe">→ Verified on-chain: <span class="highlight-good">Base Mainnet ✓</span></div>
+          </div>
+          <div class="privacy-meter">
+            <div class="meter-bar filled"></div>
+            <div class="meter-bar filled"></div>
+            <div class="meter-bar filled"></div>
+            <div class="meter-bar filled"></div>
+            <div class="meter-bar filled"></div>
+          </div>
+          <div style="color: #22c55e; font-size: 0.8rem; margin-top: 0.5rem;">Privacy: 100%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow Diagram -->
+    <div class="card flow-diagram">
+      <h2>⚡ End-to-End Flow</h2>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="icon">🤖</div>
+          <div class="text">AI Agent<br>(private agent_id)</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="icon">🔐</div>
+          <div class="text">Noir Circuit<br>(generate ZK proof)</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="icon">🌐</div>
+          <div class="text">Gated API<br>(submit proof)</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="icon">⛓️</div>
+          <div class="text">Base Mainnet<br>(verify on-chain)</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="icon">🔓</div>
+          <div class="text">Access Granted<br>(no ID leaked)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contract Info -->
+    <div class="card">
+      <h2>📜 Contracts (Base Mainnet)</h2>
+      <div class="stat">
+        <span class="label">Chain</span>
+        <span class="value">Base (8453)</span>
+      </div>
+      <div class="stat">
+        <span class="label">HonkVerifier</span>
+        <a class="contract-link" href="https://basescan.org/address/0xA95E3fc6a8d4e02d5717AF73744ed9BdEbD30578" target="_blank">
+          0xA95E...4cc1
+        </a>
+      </div>
+      <div class="stat">
+        <span class="label">ZKGatedAccess</span>
+        <a class="contract-link" href="https://basescan.org/address/0x0F60203C05270a5d39bF7494e7cd29F1Dd52aFC7" target="_blank">
+          0x0F60...aFC7
+        </a>
+      </div>
+      <div class="stat">
+        <span class="label">Proof System</span>
+        <span class="value">UltraHonk (Noir/BB)</span>
+      </div>
+      <div class="stat">
+        <span class="label">Circuit</span>
+        <span class="value">Merkle Membership (depth 3)</span>
+      </div>
+    </div>
+
+    <!-- Live Stats -->
+    <div class="card">
+      <h2>📈 Demo Stats</h2>
+      <div class="stat">
+        <span class="label">Proof Size</span>
+        <span class="value">8,640 bytes</span>
+      </div>
+      <div class="stat">
+        <span class="label">Proof Generation</span>
+        <span class="value">~200ms</span>
+      </div>
+      <div class="stat">
+        <span class="label">On-chain Verification</span>
+        <span class="value good">staticCall (free)</span>
+      </div>
+      <div class="stat">
+        <span class="label">Anonymity Set</span>
+        <span class="value">4 agents (max 8)</span>
+      </div>
+      <div class="stat">
+        <span class="label">Identity Leaked</span>
+        <span class="value good">None ✓</span>
+      </div>
+      <div class="stat">
+        <span class="label">API Keys Used</span>
+        <span class="value good">Zero ✓</span>
+      </div>
+    </div>
+
+    <!-- Two Callers -->
+    <div class="card comparison">
+      <h2>👥 Two Anonymous Callers — Same Set, No Distinction</h2>
+      <div class="comparison-grid">
+        <div class="new-way">
+          <h3>Agent A (proof verified ✅)</h3>
+          <div class="request-log">
+            <div class="line safe">Proof hash: <span class="highlight-neutral">0xa71bcba1...</span></div>
+            <div class="line safe">Merkle root: <span class="highlight-good">0x26abf06d...</span></div>
+            <div class="line safe">On-chain result: <span class="highlight-good">true</span></div>
+            <div class="line safe">Agent ID visible? <span class="highlight-good">NO</span></div>
+          </div>
+        </div>
+        <div class="new-way">
+          <h3>Agent B (proof verified ✅)</h3>
+          <div class="request-log">
+            <div class="line safe">Proof hash: <span class="highlight-neutral">0x24faf3c3...</span></div>
+            <div class="line safe">Merkle root: <span class="highlight-good">0x26abf06d...</span></div>
+            <div class="line safe">On-chain result: <span class="highlight-good">true</span></div>
+            <div class="line safe">Agent ID visible? <span class="highlight-good">NO</span></div>
+          </div>
+        </div>
+      </div>
+      <p style="text-align: center; color: #888; margin-top: 1rem; font-size: 0.9rem;">
+        Both agents verified ✅ — but the server <strong style="color: #22c55e;">cannot tell them apart</strong>. 
+        Different proofs, same root, zero identity leakage.
+      </p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>The Synthesis Hackathon — Team Boba | 
+      <a href="https://github.com/tko1229/zk-gated-api">GitHub</a> | 
+      Base Mainnet (8453)
+    </p>
+  </div>
+</body>
+</html>
