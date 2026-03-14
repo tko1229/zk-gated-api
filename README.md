@@ -203,6 +203,12 @@ The access policy is controlled by the **Merkle root** stored in the `ZKGatedAcc
 
 This is a **human-defined policy**: the contract owner (the human) decides which agents are authorized by computing and publishing the appropriate Merkle root. The agent proves membership; the human defines the set.
 
+## Demo Video
+
+**▶ [Watch demo (MP4, 55s)](https://github.com/tko1229/zk-gated-api/releases/download/v1.0-demo/zk-gated-api-demo.mp4)**
+
+Problem → Architecture → Live terminal (proof + on-chain verification) → Two anonymous callers → Conclusion.
+
 ## License
 
 MIT

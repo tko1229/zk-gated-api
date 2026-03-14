@@ -1,0 +1,13 @@
+THE PROBLEM
+━━━━━━━━━━━
+
+Every API call leaks agent identity:
+
+  API Key / Bearer Token
+       ↓
+  Links agent → human owner
+       ↓
+  More calls = more metadata leaked
+
+Traditional API keys create
+a permanent identity trail.

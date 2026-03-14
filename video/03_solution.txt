@@ -1,0 +1,18 @@
+THE SOLUTION: ZK Proofs
+━━━━━━━━━━━━━━━━━━━━━━━
+
+┌──────────┐    ┌──────────┐    ┌──────────────┐
+│ AI Agent │───▶│ ZK Proof │───▶│ Gated API    │
+│ (secret  │    │ (Noir +  │    │ (verifies    │
+│  agent   │    │  BB)     │    │  on-chain)   │
+│  ID)     │    │          │    │              │
+└──────────┘    └──────────┘    └──────┬───────┘
+                                       │
+                              ┌────────▼────────┐
+                              │  Base Mainnet   │
+                              │  HonkVerifier   │
+                              │  ZKGatedAccess  │
+                              └─────────────────┘
+
+Agent proves membership WITHOUT
+revealing which agent it is.

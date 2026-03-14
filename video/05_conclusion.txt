@@ -1,0 +1,10 @@
+RESULT
+━━━━━━
+
+✅ No API key used in any call
+✅ Two agents verified — indistinguishable  
+✅ On-chain verification on Base Mainnet
+✅ Human controls the agent set
+✅ Zero identity leakage
+
+github.com/tko1229/zk-gated-api

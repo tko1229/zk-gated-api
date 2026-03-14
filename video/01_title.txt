@@ -1,0 +1,8 @@
+ZK-Gated API Access
+━━━━━━━━━━━━━━━━━━━
+The Synthesis Hackathon
+
+Track: Agents that Keep Secrets
+Team: Boba
+
+Base Mainnet (Chain 8453)
