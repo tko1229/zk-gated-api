@@ -45,6 +45,15 @@ Optional: `node scripts/two-callers-demo.mjs` — two agents from the same set; 
 
 Contents: Problem (API key identity leakage) → Architecture → Live terminal: proof generation + on-chain verification on Base Mainnet → Two anonymous callers → Contracts on Basescan → Conclusion.
 
+## Human–agent process (brief)
+
+- **Spec:** Human set DoD — Noir Merkle proof, on-chain verify on **Base Mainnet only**, gated API, E2E without demo API key in the happy path.
+- **Execution:** Coding agent (OpenClaw) from a single task prompt + contract doc; circuits, `bb`, Foundry, deploy **8453**, Express + scripts.
+- **Mainnet fix:** Verifier contract size (EIP-170) → adjust optimizer runs, redeploy.
+- **Phase 2:** Dashboard, two anonymous callers, Access Policy in README.
+- **Audit:** Scripted regression (secrets, compile, mainnet `call-gated-api.mjs`) → **15/15 PASS**; demo video on GitHub Release.
+- **Submission:** `conversationLog` + metadata on Synthesis; full timeline + JSON: [`docs/CONVERSATION_LOG.md`](docs/CONVERSATION_LOG.md).
+
 ## Security note
 
 No API keys or deployer private keys belong in this repository — only in local `.env` / CI secrets.

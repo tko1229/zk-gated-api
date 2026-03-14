@@ -164,6 +164,8 @@ synthesis-demo/
 │   ├── call-gated-api.mjs     # End-to-end demo script
 │   ├── generate-proof.mjs     # Proof generation utility
 │   └── two-callers-demo.mjs   # Two anonymous callers demo
+├── docs/
+│   └── CONVERSATION_LOG.md    # Human–agent timeline + JSON for Synthesis conversationLog
 └── README.md
 ```
 
@@ -208,6 +210,20 @@ This is a **human-defined policy**: the contract owner (the human) decides which
 **▶ [Watch demo (MP4, 55s)](https://github.com/tko1229/zk-gated-api/releases/download/v1.0-demo/zk-gated-api-demo.mp4)**
 
 Problem → Architecture → Live terminal (proof + on-chain verification) → Two anonymous callers → Conclusion.
+
+## Human–agent build log
+
+Как шёл проект (Synthesis: агенты и люди **вместе**; см. правила платформы — `conversationLog` при сабмите):
+
+1. **Спека** — человек зафиксировал DoD: Noir (Merkle membership), контракты только на **Base Mainnet**, gated API, один E2E-сценарий с proof без API key демо-сервиса.
+2. **Промпт** — агенту одним сообщением: постановка из внутреннего контракта + тема трека; окружение — OpenClaw, при необходимости модель Opus для тяжёлых шагов.
+3. **Сборка** — агент: `nargo` + `bb`, Solidity verifier + `ZKGatedAccess`, деплой на **8453**, Node API и скрипты (`call-gated-api.mjs`, `generate-proof.mjs`).
+4. **Итерация mainnet** — верификатор не влезал в лимит контракта → уменьшение `optimizer_runs`, перегенерация verifier, повторный деплой.
+5. **Фаза 2** — дашборд (ключ vs ZK), демо двух вызывающих, политика доступа в README.
+6. **Аудит** — отдельный промпт (регрессия + секреты + mainnet E2E); таблица PASS/FAIL; правки до **15/15**.
+7. **Видео и сдача** — запись демо, релиз MP4, ссылки здесь и в `JUDGES.md`; push в репо.
+
+Полный лог для поля **conversationLog** на платформе: [`docs/CONVERSATION_LOG.md`](docs/CONVERSATION_LOG.md) (там же JSON для копипаста).
 
 ## License
 
