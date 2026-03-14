@@ -19,3 +19,9 @@ e2e-result.json
 .DS_Store
 *.swp
 Prover.toml
+
+# Video build artifacts (final video is in GitHub releases)
+video/
+zk-gated-api-demo.mp4
+*.cast
+*.gif
